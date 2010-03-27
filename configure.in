@@ -451,7 +451,7 @@ sparc)
 	is_sparc="yes";;
 hppa*)
 	is_hppa="yes";;
-i[[3456]]86*)
+i[[3456]]86* | x86_64)
 	is_linux="yes";;
 *)
 	AC_MSG_ERROR(Target CPU type not supported: "$target_cpu");;
@@ -774,7 +774,7 @@ hppa*)
 	     echo 'setting library options for HP aCC'
 	     ;;
 	esac;;
-i[[3456]]86*) 
+i[[3456]]86* | x86_64) 
 	AC_DEFINE(SHLIB_EXT,".so")
 	SHLIB_EXT=.so
 	SH_LIB_EXT=so
