@@ -50,8 +50,20 @@
 #include <map>
 
 #if defined(_USE_HASH_MAP)
-#include <hash_map.h>
+#ifdef __GNUC__
+#include <ext/hash_map>
+#else
+#include <hash_map>
 #endif
+#endif
+
+#ifdef __GNUC__
+namespace std
+{
+using namespace __gnu_cxx;
+}
+#endif
+
 
 template <class Data>   // needed for scv_random.cpp
 ostream& operator<<(ostream&os, const list<Data> & t) {
@@ -268,7 +280,9 @@ return _scv_associative_array<Key, Data, container_type>::hasNonDefaultElt();
 
 #if defined(_USE_HASH_MAP)
 // to support usage of hash_map instead of map 
-
+#ifdef __GNUC__
+namespace __gnu_cxx {
+#endif
 template<class T>
 class hash<T*> : public hash<T> {
 public:
@@ -281,6 +295,10 @@ class hash<string> : public hash<int> {
 public:
   size_t operator()(const string &i) const { return hash<int>::operator()((int) atoi(i.c_str())); }
 };
+
+#ifdef __GNUC__
+}
+#endif
 
 #endif
 
