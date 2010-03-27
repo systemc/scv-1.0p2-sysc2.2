@@ -1,4 +1,4 @@
-#!/bin/sh -h
+#!/bin/bash -h
 
 # copyExamples.sh <srcdir> <dstdir>
 
