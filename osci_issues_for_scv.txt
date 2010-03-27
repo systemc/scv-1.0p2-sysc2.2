@@ -1,0 +1,859 @@
+Time-stamp: <2002-12-05 15:47:01 mxg>
+
+VWG issue list
+
+Issue 1: Smart Pointer for Private/protected data type
+
+  Status: this is a documentation issue that will be fixed for the
+  production release of the code.
+
+  11/20/02: We must fix this for beta 1.  Dean will fix the SCV spec,
+  and Ted will add an example for this to the notebook.
+
+  Associated PCR: 489032
+
+  12/02/02: Fixed in beta 1 release.
+
+Issue 2: Transaction recording: Begin and end attribute names not
+recorded
+
+  Status: this bug has been confirmed and is a priority 0 pcr. It will
+  be fixed for the production release.
+
+  11/20/02: We must fix this for beta 1.  Bill P will fix the code.
+
+  Associated PCR: 489049
+
+  12/02/02: Fixed in beta 1 release
+  
+    As part of the fix, these methods were added to scv_tr.h:
+
+      // Get the names of the begin and end attributes, as given in the
+      // scv_tr_generator_base ctor:
+      //
+      const char* scv_tr_generator_base::get_begin_attribute_name() const;
+      const char* scv_tr_generator_base::get_end_attribute_name() const;
+
+Issue 3: Begin Transaction does not seem to record relation names
+
+  Status: this bug has been confirmed. Since the add_relation() method
+  works properly as a work around, this is set as a priority 1
+  pcr. However, our intention is to fix it for the production release
+  of code.
+
+  11/20/02: We must fix this for beta 2.
+
+  Associated PCR: 489052
+
+  12/02/02: Fixed in beta 1 release.  As part of this fix, it's
+  possible to define a relation handle that can be used to specify a
+  relation between two transaction.  This can be more efficient than
+  having to specifying the relation as a character string
+  name. (However, the original API in which the realtion name is
+  specified is retained.)
+
+    This typedef defines a relation handle:
+
+    typedef long scv_tr_relation_handle_t;
+    
+    ---
+    
+    In class scv_tr_db, 2 methods were added:
+    
+      // Create a new relation that can be defined between two
+      // transactions.  If a relation with relation_name had
+      // previously been created, then return the handle to that
+      // relation.
+      //
+      scv_tr_relation_handle_t create_relation(
+            const char* relation_name) const;
+    
+      // Get the name of a relation handle.  NULL is returned if the
+      // relation_handle does not refer to a valid relation.
+      //
+      const char* get_relation_name(
+            scv_tr_relation_handle_t relation_handle) const;
+    
+    ---
+    
+    In class scv_tr_handle, an argument in the relation callback
+    function was changed from:
+    
+      typedef void callback_relation_function(
+                    const scv_tr_handle& transaction_1,
+                    const scv_tr_handle& transaction_2,
+                    void* user_data_p,
+                    const char* relation_name);
+    
+    To:
+    
+      typedef void callback_relation_function(
+                    const scv_tr_handle& transaction_1,
+                    const scv_tr_handle& transaction_2,
+                    void* user_data_p,
+                    scv_tr_relation_handle_t relation_handle);
+    
+    ---
+    
+    In class scv_tr_handle, this method was added:
+    
+      bool add_relation(
+            scv_tr_relation_handle_t relation_handle,
+            const scv_tr_handle& other_transaction_handle);
+    
+    ---
+    
+    In class scv_tr_handle, this method was removed:
+    
+      const scv_tr_handle get_related_transaction(const char* relation_name) const;
+    
+    and replaced it with:
+    
+      // If a related transaction is specified at the beginning of a
+      // new transaction, then return the other related transaction
+      // and the relation_handle.
+      //
+      const scv_tr_handle* get_immediate_related_transaction(
+            scv_tr_relation_handle_t* relation_handle_p);
+    
+    ---
+    
+    In class scv_tr_generator, these methods were added:
+    
+      scv_tr_handle begin_transaction(
+            scv_tr_relation_handle_t relation_handle,
+            const scv_tr_handle& other_transaction_handle)
+    
+      scv_tr_handle begin_transaction(
+            const T_begin& begin_attribute_values,
+            scv_tr_relation_handle_t relation_handle,
+
+            const scv_tr_handle& other_transaction_handle)
+    
+      scv_tr_handle begin_transaction(
+            const sc_time& begin_sc_time,
+            scv_tr_relation_handle_t relation_handle,
+            const scv_tr_handle& other_transaction_handle)
+    
+      scv_tr_handle begin_transaction(
+            const T_begin& begin_attribute_values,
+            const sc_time& begin_sc_time,
+            scv_tr_relation_handle_t relation_handle,
+            const scv_tr_handle& other_transaction_handle)
+
+Issue 4: Multiple calls to record_attribute (page 51)
+
+  Status: the documentation is incorrect on this point. The
+  documentation will be clarified in the production release. The
+  behavior of multiple record_attribute() calls is intended to be
+  implementation specific (like a zero time glitch on a signal). The
+  reference implementation will record all values. It is mandatory
+  that an implementation at least record the last value.
+
+  11/20/02: We must fix this for beta 1.  Dean will fix the SCV spec.
+
+  Associated PCR: 489055
+
+  12/02/02: Document updated for beta 1 release.
+
+Issue 5: Arbitrary data types not handled properly by record_attribute
+
+  Status: the bug as reported (compiler error on record_attribute of a
+  user type) could not be duplicated. However, a bug was found when
+  trying to duplicate the compiler error.  record_attribute currently
+  does not record user defined attributes (it indicates they are an
+  undefined type). This is a priority 1 pcr. Our intention will be to
+  fix this by the production code release. For the compiler error, a
+  test case is required for us to understand the nature of the problem
+  being reported.
+
+  11/20/02: We must fix this for beta 1.  Bill P will fix the code.
+
+  Associated PCR: 489077
+
+  12/02/02: Fixed for beta 1 release.
+
+    This is fixed for all user-defined data types except for pointers,
+    which are not currently implemented by the scv_extensions.
+
+    Also, this method was added to class scv_tr_handle, so that if the
+    attribute_value object has scv_extensions that include the name of
+    the object, then you don't need to use the form of
+    record_attribute that requires the name.
+
+    template <class T> void record_attribute(
+          const T& attribute_value) {
+      scv_extensions<T> ext = scv_get_const_extensions(attribute_value);
+      this->_record_attribute(0, &ext);
+    }
+
+Issue 6: Installation file
+
+  Status: we will move installation information from the README to the
+  INSTALL file. This has been completed for the beta release.
+
+  11/20/02: done.  Awaiting confirmation from Logie.
+
+Issue 7: README references to Vendor specific tools
+
+  Status: all references to specific vendor tools will be removed from
+  the README file. This has been completed for the beta release.
+
+  11/20/20: done
+
+Issue 8: make install documentation lacking
+
+  Status: make install will be documented in the INSTALL file. The
+  semantics of make install are to use the prefix path by default. If
+  it doesn't exist, then make install put the installation in the
+  current directory. This is done for the beta release.
+
+  11/20/02: done
+
+  12/05/02: same issue as #28
+
+Issue 9: documentation for patching systemc with dynamic threading
+
+  Status: the systemc version reference should be 2.0.1. The prefix
+  for the patches is tb_ because these are not scv_ classes. The
+  dynamic threading patches should be removed completely from the scv
+  kit. We will provide those separately for users that want them
+  (until the equivalent functionality is available in the core
+  systemc). Reference to the tb_ classes has been removed for the beta
+  release.
+
+  11/20/02: done
+
+Issue 10: Configure checks for vendor installation information
+
+  Status: all configure checks associated with eda vendor specific
+  tools will be removed. We are working on this, and intend to have a
+  simplified configure file for the next release that is more in line
+  with the systemc version of configure. This has been done for the
+  beta release.
+
+  11/20/02: done
+
+Issue 11: No make debug support
+
+  Status: this request makes sense. We should be able to add this for the production release,
+  time permitting.
+
+  11/20/02: We must fix this for beta 2.
+
+  Associated PCR: 489112
+
+  12/02/02: not done, planned for beta 2 release.
+
+  02/11/03: fixed in beta 2.
+
+Issue 12: Multiple platform support to a single install prefix
+
+  Status: this will be fixed along with the general cleanup of
+  configure in issue 10 to make the configuration compatible with the
+  standard systemc configuration. This will be planned for the
+  production code release.
+
+  11/20/02: We must fix this for beta 2.  This means using
+  lib-<modifier> instead of lib as the library subdirectory name.
+
+  02/11/03: fixed in beta 2.
+
+Issue 13: Source files with tb_ extensions
+
+  Status: this is related to issue 9. Our plan is to move these files
+  out of the scv installation, and make them available independently
+  and not part of the standardization effort. This is done for the
+  beta release.
+
+  11/20/02: done
+
+Issue 14: Class names starting with _
+
+  Status: this is done for classes that are implementation specific so
+  it does not seem to be a critical issue. Is there an OSCI convention
+  for cases classes that are internal? It is inappropriate to use scv
+  in such cases, so _scv was the choice made. If there is an OSCI
+  coding guideline for this type of thing we can look at making the
+  appropriate modifications.
+
+  In a previous issue a postfix _ was mentioned. This issue was
+  specifically for the tb_ classes which will be removed. However, the
+  _<class> convention was used in the introspection code quite
+  extensively.
+
+  11/20/02: We will take no action on this pending a LWG decision on
+  naming conventions.
+
+Issue 15: Unknown symbol __builtin_expect() on Linux
+
+  Status: this happened because of a bug in jrand() on 7.1 and earlier
+  versions. The fixed code for jrand() was taken from a gcc2.96
+  implementation on rh7.2. This is where the __builtin_expect() comes
+  from. We are investigating what it will take to remove the
+  dependency on this symbol but still have a working jrand() for
+  generating uniform random numbers. A possible fix has been added to
+  the beta kit. However, we currently do not have a Linux machine with
+  gcc 2.95.3 to test the fix.
+
+  11/20/02: We have confirmed that this has been fixed for 2.95.3, but
+  cannot guarantee that there are no other issues associated with that
+  compiler.  VWG consensus was that this is not a critical issue
+  provided we work with 2.96.  SystemC 2.1's primary GNU target will
+  be 3.2.
+
+  Associated PCR: 489116
+
+  We test with RedHat 7.1 base CD plus the following set of RPMs:
+
+        Mesa-3.4.2-10.i386.rpm 
+        Mesa-devel-3.4.2-10.i386.rpm 
+        XFree86-100dpi-fonts-4.1.0-25.i386.rpm 
+        XFree86-4.1.0-25.i386.rpm 
+        XFree86-75dpi-fonts-4.1.0-25.i386.rpm 
+        XFree86-devel-4.1.0-25.i386.rpm 
+        XFree86-libs-4.1.0-25.i386.rpm 
+        XFree86-tools-4.1.0-25.i386.rpm 
+        XFree86-twm-4.1.0-25.i386.rpm 
+        XFree86-xdm-4.1.0-25.i386.rpm 
+        XFree86-xfs-4.1.0-25.i386.rpm 
+        e2fsprogs-1.26-1.71.i386.rpm 
+        e2fsprogs-devel-1.26-1.71.i386.rpm 
+        filesystem-2.1.0-2.1.noarch.rpm 
+        gdb-5.1-0.71.i386.rpm 
+        glibc-2.2.4-24.i686.rpm 
+        glibc-common-2.2.4-24.i386.rpm 
+
+        glibc-devel-2.2.4-24.i386.rpm 
+        kernel-2.4.9-31.i686.rpm 
+        kernel-headers-2.4.9-31.i386.rpm 
+        kernel-smp-2.4.9-31.i686.rpm
+        kernel-source-2.4.9-31.i386.rpm 
+        mkinitrd-3.2.6-1.i386.rpm 
+        modutils-2.4.13-0.7.1.i386.rpm 
+        ncurses4-5.0-2.i386.rpm 
+        nscd-2.2.4-24.i386.rpm 
+
+        tar-1.13.25-1.i386.rpm 
+        util-linux-2.11f-17.i386.rpm 
+        xinitrc-3.20-1.noarch.rpm 
+        ypbind-1.7-8.i386.rpm 
+        pdksh-5.2.14-13.i386.rpm
+        cpp-2.96-85.i386.rpm 
+        gcc-2.96-85.i386.rpm 
+        gcc-c++-2.96-85.i386.rpm 
+        gcc-g77-2.96-85.i386.rpm 
+        gcc-objc-2.96-85.i386.rpm 
+
+        libstdc++-2.96-85.i386.rpm 
+        libstdc++-devel-2.96-85.i386.rpm 
+        motif-1.2.4-3glibc.i386.rpm 
+        motif-devel-1.2.4-3glibc.i386.rpm 
+        motif20-mwm-2.0.1-3glibc.i386.rpm 
+        motif21-libs-2.1.10-3glibc.i386.rpm 
+        motif21-sdevel-2.1.10-3glibc.i386.rpm
+
+  On RedHat 7.2 we add the following RPMs to the base CD:
+
+        Mesa-3.4.2-10.i386.rpm 
+        Mesa-devel-3.4.2-10.i386.rpm 
+        XFree86-100dpi-fonts-4.1.0-25.i386.rpm 
+        XFree86-4.1.0-25.i386.rpm 
+        XFree86-75dpi-fonts-4.1.0-25.i386.rpm 
+        XFree86-ISO8859-15-100dpi-fonts-4.1.0-25.i386.rpm 
+
+        XFree86-ISO8859-15-75dpi-fonts-4.1.0-25.i386.rpm 
+        XFree86-devel-4.1.0-25.i386.rpm 
+        XFree86-libs-4.1.0-25.i386.rpm 
+        XFree86-tools-4.1.0-25.i386.rpm 
+        XFree86-twm-4.1.0-25.i386.rpm 
+        XFree86-xdm-4.1.0-25.i386.rpm 
+        XFree86-xfs-4.1.0-25.i386.rpm 
+        e2fsprogs-1.26-1.72.i386.rpm 
+        e2fsprogs-devel-1.26-1.72.i386.rpm 
+        gdb-5.1-1.i386.rpm 
+        glibc-2.2.4-24.i686.rpm 
+        glibc-common-2.2.4-24.i386.rpm 
+        glibc-devel-2.2.4-24.i386.rpm 
+        kernel-2.4.9-34.i686.rpm 
+        kernel-headers-2.4.9-34.i386.rpm 
+        kernel-smp-2.4.9-34.i686.rpm -- optional, only needed for multi-processor machines 
+        kernel-source-2.4.9-34.i386.rpm 
+        modutils-2.4.13-0.7.1.i386.rpm 
+        nscd-2.2.4-24.i386.rpm 
+        tar-1.13.25-1.i386.rpm 
+        util-linux-2.11f-17.i386.rpm 
+        pdksh-5.2.14-13.i386.rpm -- needed only for developers' convenience/productivity 
+        Please see Section 5.5 of this document for an explanation of the Motif RPMs. 
+        The following RPMs come with the RedHat 7.2 CD set and must be installed to build the LDV software: 
+        cpp-2.96-98 
+        gcc-2.96-98 
+        gcc-c++-2.96-98 
+        gcc-g77-2.96-98 
+        gcc-objc-2.96-98 
+        libstdc++-2.96-98 
+        libstdc++-devel-2.96-98 
+        ncurses4-5.0-4 
+        libelf-0.7.0-1 
+
+Issue 16: Use of STL
+
+  Status: this may indeed be a portability issue. For Linux, HP, and
+  Solaris our use of stl has been okay. However, when we port to VC++
+  this may be a more significant issue since VC++ has not had good stl
+  support. We need to investigate this issue more.
+
+  11/20/02: The LWG is considering shifting to use STL in SystemC 2.1;
+  pending their decision, this is not an issue.
+
+  12/05/02: closed. The VWG decided that STL is necessary for SCV and
+  will make a statement to that effect to the LWG.
+
+Issue 17: Naming for the scv kit
+
+  Status: the scv kit name for 1.0beta is systemc-2.0-SCV1.0B.
+
+  11/20/02: Our configure/install process must be as glitch-free as
+  SystemC's, and we should install seamlessly into an existing SystemC
+  installation tree.  We should take out example from the master/slave
+  library.  Required for beta 2.
+
+  12/02/02: planned for beta 2 release.
+
+Issue 18: CUDD Library
+
+  Status: the CUDD library is a standard BDD package. The TestBuilder
+  team was given the rights to redistribute it as part of an open
+  source package. The copy righting should be fine for the reference
+  implementation. Use of the CUDD library is exactly analogous to use
+  of the quicktrheads library. If bugs are found, they can, and should
+  be fixed by osci, and contributed back.
+
+  11/20/02: Mark G will contact Stan and Kevin so OSCI lawyers can
+  sniff this.
+
+Issue 19: Naming conventions in introspection code
+
+  Status: The request to make all class names lower case and all
+  macros start with SCV is fine. This was intended early on. I think
+  these instances were missed. The effected macros and classes are all
+  internal, so this is a low priority issue, but is simple enough that
+  it will likely be fixed for the production release.
+
+  11/20/02: There are no requirements from the VWG on this pending a
+  LWG decision on naming conventions.
+
+  Associated PCR: 489172
+
+Issue 20: scv namespace
+
+  Status: We need to investigate what the ramifications of such a
+  change would be. The main effect will be in the introspection code,
+  but it may cause side effects, so we can't do something like this
+  immediately. The request for using an scv namespace is
+  reasonable. Is this something that other systemc extensions are
+  doing? At this point we will commit to investigating, but not commit
+  to making the change.
+
+  11/20/02: The VWG's main concern is that we work with gcc 3.2, which
+  may have namespace implications.
+
+  Associated PCR:489252
+
+Issue 21: SCV Library does not compile on HP due to include of
+hash_map.h
+
+  Status: This should be fixed now. The hash_map.h file is only
+  included for gcc 2.95. If the compiler is aCC, then the
+  _USE_HASH_MAP macro should not be defined in scv_config.h.
+
+  12/02/02: fixed in beta 1 release.
+
+Issue 22: Configure script not set up properly for Solaris and HP
+
+  Status: What does this mean? There are other issues that address
+  specific configuration and installation issues which we can
+  address.  Please clarify the issue.
+
+  12/02/02: Clarification requested.
+
+Issue 23: configure script uses the wrong C compiler on HP
+
+  Status: scv uses the AC_PROG_CC to find the C compiler. This is what
+  it should do. SystemC manually sets the C compiler to be the C++
+  compiler. This is not the right thing to do. If the user wants to
+  use the C++ compiler as the C compiler, then they can set the
+  environment variable CC to be their C++ compiler. But, in that case,
+  then need to make sure that flags are set for compiling C programs
+  with the C++ compiler (different compilers have different behavior
+  in this regard).
+
+  12/02/02: What behavior are you seeing that leads you to believe
+  that this is a problem?  Please clarify.
+
+Issue 24: configure script does not work with relative pathnames
+
+  Status: This issue should be fixed. We will look into it, but it may
+  not be available for the beta release.
+
+  Associated PCR: 493377
+
+  12/02/02: planned for beta 2 release.
+
+  12/08/02: --prefix now handles relative pathnames.
+
+  02/23/03:  Fixed for beta 2.
+
+Issue 25: Cudd infinite loop warning on HP
+
+  Status: We will look into this to see if there is a real issue here or not.
+
+  Associated PCR: 493380
+
+  12/02/02: This warning has consistently appeared when compiling CUDD
+  on HP using acc.  All of our regressions pass and it does not appear
+  to affect behavior of the system.  We will investigate further to
+  see if this warning can be eliminated.
+
+Issue 26: "SystemC Verification Extensions" should be renamed to
+"SystemC Verification Library"
+
+  Status: This makes sense to be consistent with other SystemC library
+  extensions. This may be a rather extensive document change. It
+  should be done by the beta 2 release.
+
+  Associated PCR: 493382
+
+  02/12/03: Fixed in beta 2.
+
+Issue 27: Specify support for gcc 2.95.3 on Linux, not gcc 2.96
+
+  Status: Currently, our regression machines are all 2.96. Until our
+  infrastructure is changed so that regressions are run on 2.95.3, it
+  would not be valid for us to list this as the tested compiler. It
+  should work now, but full testing has not been done.
+
+  12/02/02: see issue #15.
+
+  12/05/02: Even though we have not fully tested SCV with gcc-2.95.3,
+  our preliminary tests run successfully with the beta 1 kit.  For
+  this reason we will announce preliminary support for gcc-2.95.3 on
+  Linux.
+
+  02/12/03: We now run gcc-2.95.3 as part of our nightly regressions.
+  There are a few failures, but they all involve software which is not
+  part of SCV.
+
+Issue 28: Installation location for libraries, docs, etc and uninstall
+
+  Status: We need to fix this to be consistent with the core
+  library. This has been a lower priority because it is not a show
+  stopper. This is related to issue 10, but is more inclusive.
+
+  Associated PCR: 493392
+
+  12/02/02: planned for beta 2 release.
+
+  02/23/03: Installation locations fixed in beta 2.  Uninstall not fixed.
+
+  03/06/03: Remaining installation, uninstallation, and make target
+  issues fixed.
+
+Issue 29: configure.in and Makefile.am still contain variables with tb
+
+  Status: We removed most references to tb_ stuff. Internal variables
+  still have tb* names.  We will fix this for the beta 2 release. The
+  reference to testbuilder is a directory on a server in our
+  environment where pdf files are stored. We will look at changing the
+  name of this directory.
+
+  Associated PCR: 493398
+
+  12/02/02: planned for beta 2 release
+
+  02/12/03: fixed in beta 2.
+
+Issue 30: error in documented examples, . used instead of ->
+
+  Status: We will go through the document and verify that all examples
+  compile.
+
+  Associated PCR: 493399
+
+  12/02/02: Doc error fixed.  We have also proofread the spec to
+  remove any similar errors.  The result is only as good as our
+  proofreading skills -- undetected errors may remain. We will go
+  through the examples again prior to the beta 2 release to ensure
+  that all examples work as written.
+
+Issue 31: _LINUX_SOURCE macro is defined in scv_config.h
+
+  Status: We will look at changing this for the beta 2 release. Only a
+  couple of files are affected.
+
+  Associated PCR: 493401
+
+  12/05/02: planned for beta 2 release.
+
+  02/12/03: fixed in beta 2.
+
+Issue 32: Add scv_extensions specialization for sc non-templated base
+types
+
+  Status: This is definitely something that should be done. It may,
+  however, not be done until early next year.
+
+  Associated PCR: 493406
+
+  12/02/02: A desireable enhancement.  It's been added to our
+  enhancement queue, but as yet unscheduled.
+
+  12/05/02: Required for production release.  This enhancement is
+  potentially non-trivial.  This requirement may delay the production
+  release.
+
+  02/23/03: Fixed in beta 2.
+
+Issue 33: Files missing in installed examples
+
+  Status: An oversight that can be easily fixed.
+
+  Associated PCR: 493407
+
+  12/02/02: Fixed in beta 1 release
+
+Issue 34: Constrained random generation on arrays
+
+  Status: This is actually a general introspection issue that needs to
+  be investigated. It is likely a documentation issue. For what the
+  user is attempting to do in the example, he should be using:
+
+    scv_smart_ptr<int> arr[2];
+
+  The example in the spec is incorrect in this usage, and has been
+
+  changed to reflect the correct way to get the desired behavior.
+
+  It may be possible to have scv_smart_ptr handle array types. We need
+  to look into that. If it is not possible, then we will document this
+  limitation.
+
+  Associated PCR: 493506
+
+  12/02/02: This feature is not supported and the release notes will
+  reflect this fact.  The VWG needs to take up the issue to decide
+  whether this feature should be part of the standard or not.  We will
+  investigate to determine if adding support for smart pointers to
+  arrays is feasible.
+
+  12/05/02: A workaround exists.  You can wrap a class around the
+  array to get the desired behavior.  Workaround to be documented in
+  release notes.
+
+Issue 35: Constrained random generation with unsatisfiable constraint
+
+  Status: The current behavior is correct. The semantics of the
+  scv_constraint_base class is that SCV_CONSTRAINTs have a conjunction
+  behavior. That means, if any one constraint cannot be satisfied, all
+  constraints cannot be satisfied. The user has many choices here:
+
+    1. they can use a soft constraint
+
+    2. they can use hierarchical constraints
+
+    3. they can make individual constraints since the constraints are
+    not dependent on each other.
+
+  12/02/02: Section 5.3, page 38 of the SCV spec says:
+
+    The expressions in the series of SCV_CONSTRAINT macros within the
+    constructor are merged into a single expression using the
+    conjunction operator, &&, and stored in a static variable
+    corresponding to the class. Using the traditional semantic for a
+    conjunction, the resulting behavior is independent of the order
+    from which the series of SCV_CONSTRAINT macros are
+    declared. Because the constraint information is stored in a static
+    variable for this class, it is processed only once. The
+    expressions in the macros must use operator()() on the member
+    smart pointers of the constraint class to relate the constraints
+    to the underlying data objects referred by the member smart
+    pointers. It is an error to assign a different data object to the
+    smart pointer member variable of the constraint class. If a random
+    value is needed for an existing smart pointer, you should call
+    next() on the constraint and then copy the resulting value to the
+    existing smart pointer.
+
+  12/05/02: Hierarchical constraints (workaround #2) will not solve
+  the problem.  We recommend that the user split apart constraints
+  into seperate classe to avoid unncessary interactions.  We will
+  update the spec in the beta 1 release to clarify the behavior when
+  constraints cannot be satisfied.
+
+  12/08/01: Section 5.3 of the SCV spec now includes this text:
+ 
+    The constraints specified by the macro SCV_CONSTRAINT are hard
+    constraints; if the constraint solver cannot find a legal value that
+    satisfies these hard constraints, an error is reported. Soft
+    constraints can also be specified using the macro SCV_SOFT_CONSTRAINT.
+    If the constraint solver cannot find a legal value that satisfies both
+    soft and hard constraints, a warning is reported, and the solver will
+    generate a value with respect to the hard constraints only, while
+    ignoring the soft constraints.  If the constraint solver still cannot
+    find a legal value (ignoring the soft constraints), an error is
+    reported, and the solver will generate a value while ignoring all
+    constraints.
+ 
+    Because all constraints in a constraint class are ignored if a single
+    (hard) constraint cannot be satisfied, it may be advisable to keep
+    unrelated constraints in separate classes.  Smaller constraint classes
+    may make it easier to determine why a set of constraints cannot be
+    satisfied.
+
+Issue 36: Float type not supported in constrained randomization
+
+  Status: this limitation will be documented in the RELEASENOTES with
+  an appropriate work around. 
+
+  12/02/02: The API as documented allows for constraints to be applied
+  to floating point numbers.  The reference implementation does not
+  support this feature.  We can add it to our enhancement queue if the
+  VWG so requires.
+
+  12/05/02:  The VWG discussed three options:
+
+    1. leave spec as is; allow alternate implementations to support
+       this feature.
+    2. Change the spec to reflect that constraints on floating point
+       variables is not supported.
+    3. Propose a modified API for supporting constraints on floating
+       point variables.
+
+    The final agreement is to document that floating point numbers are
+    not supported (option 2). In the future, should a proposal be
+    written by someone for a modification of the API to support
+    constraints on floating point variables we will seriously consider
+    it.
+
+  12/08/02:  Section 5.3 of the VWG spec now includes this statement:
+
+    The standard does not require support of constraints on floats or
+    doubles.
+
+Issue 37: Multiply operation on constraint hangs the process forever
+
+  Status: it is well documented that some types of constraints will
+  cause the constraint solver to take a long time. Specifically, doing
+  multiplication over a certain number of bits is slow. Since a
+  timeout was not specified as part of the SCV standard, it is
+  possible to effectively hang a process using these types of
+  constraints. As this is already documented, there is not much else
+  that can be done. It is possible to add a timeout mechanism if the
+  SCV committee chooses to do so.
+
+  12/02/02: The release notes for the beta 1 release are updated to
+  reflect practical limitation in the size of numbers that can be used
+  in a multiply constraint.
+
+Issue 38: scv_smart_prt<T> does not compile with fixed-point data
+types
+
+  Status: fixed-point types do not currently have an scv_extensions<>
+  implementation which is why scv_smart_ptr<> can not use them. This
+  limitation should be documented. We will check the documentation to
+  ensure this.
+
+  Associated PCR: 493510
+
+  12/02/02: in enhancement queue, as yet unscheduled
+
+  12/05/02: required for production release.  See also issue 40.
+
+  04/30/03: We would like to defer this until after the production
+  release.
+
+Issue 39: Compile error due to SC_INCLUDE_FX
+
+  Status: defining SC_INCLUDE_FX causes the compile error (it occurs
+  on all platforms). We will investigate the cause of this. The
+  majority of our regressions to not turn on the fixed point support
+  which is why this issue would not be caught in our current
+  regressions.
+
+  Associated PCR: 493425
+
+  12/02/02: under investigation
+
+  12/05/02: planned for beta 2 release.
+
+  02/12/03: fixed for beta 2.
+
+Issue 40: full integration of fixed point data type.
+
+  Status: As we looked closely at the resolution for issue 38 we
+  realized that inclusion in scv_expressions and randomization will be
+  required.  We've split this out as a separate issue to distinguish
+  from wrapping the fixed point class with scv_extensions.  This work
+  represents a substantial effort and we should determine (separately
+  from issue 38) whether or not this should be in the production
+  release.
+
+Issue 41: inheritance among scv_extensions_base<> classes.
+
+  Status:  We do not currently support deriving one 
+  scv_extensions_base<> class from another scv_extensions_base<> 
+  class.  An extended class must contain all of the objects in the 
+  class hierarchy for the type that is being extended.  Planned for
+  beta 2 release.
+
+  Associated PCR: 493829
+
+  02/12/03: I don't think I can fix this for beta 2.
+
+  02/23/03: Fixed for beta 2.
+
+Issue 42: compile fails on some Solaris boxes
+
+  Status:  We've added a note in INSTALL suggesting trying
+  --disable-opt on the configure line.  For beta 2, we'll
+  detect Solaris boxes and change the optimization level
+  accordingly.
+
+  02/12/03: done
+
+Issue 43: bug in data_structures/scv_sparse_array example
+
+  Status: We've added a note in INSTALL suggesting a quick
+  and dirty fix for the example.  We'll fix the source code
+  for the example for beta 2.
+
+  02/12/03: Example fixed, note removed from INSTALL, in
+  beta 2.
+
+Issue 44: unapproved changes in SCV specification
+
+  Status: during preparations for SCV beta 2 we made
+  several changes to the SCV specification, as a result
+  of consultation with the VWG and with implementors of
+  SystemC 2.1.  Our released implementation is based on
+  this updated spec, which has not yet been approved by
+  the VWG.  I sent it to the updated version (vwg_1_0c)
+  as doc and pdf to systemc-verif-wg@server2.systemc.org.
+  Perhaps the list server wasn't working.
+
+Issue 45: discrepancy between scv_report specification and implementation
+
+  Status: Until recently, Cadence's extensions to SCV had relied 
+  on an undocumented callback hook in our implementation of SCV.
+  I have removed this dependency, but will not remove the
+  callback hook in our upcoming release (to allow users time to 
+  switch to the new version of our extensions).  I will remove 
+  the callback hook from SCV in the following release.
+
+Issue 46: SCV does not produce a log file
+
+  Status: The scv_report facility in SCV beta 2 does not create
+  a log file, even if the user supplies a name for one.  This is
+  fixed in our current codebase.  Note: There is no default log 
+  file name: SCV will create a log file only if the user specifies 
+  a log file name.
+

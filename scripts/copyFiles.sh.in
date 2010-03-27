@@ -1,0 +1,46 @@
+
+# copyFiles.sh [-s] <srcdir> <dstdir> <file> ..
+
+# Avoid syntax errors associated with empty for loops in Makefiles.
+
+if test "$1" = "-s"; then
+  cmd="ln -s"
+  shift
+else
+  cmd="cp"
+fi
+
+srcdir=$1
+dstdir=$2
+shift 2
+
+srcdir=`cd $srcdir;pwd`
+mkdir -p $dstdir
+dstdir=`cd $dstdir;pwd`
+
+if test "$srcdir" != "$dstdir"; then 
+
+  cd $dstdir
+
+  if test "$overwrite" = "yes"; then
+
+    while test $# != 0; do
+      file=$1
+      rm -f $file
+      $cmd $srcdir/$file .
+      shift
+    done
+
+  else
+
+    while test $# != 0; do
+      file=$1
+      if test ! -r $file; then
+        $cmd $srcdir/$file .
+      fi
+      shift
+    done
+
+  fi
+
+fi

@@ -1,0 +1,32 @@
+
+# copyDir.sh <srcdir> <dstdir>
+
+# Can be configured not to overwrite existing subdirectories
+
+srcdir=$1
+dstdir=$2
+
+srcdir=`cd $srcdir;pwd`
+mkdir -p $dstdir
+dstdir=`cd $dstdir;pwd`
+
+if test "$srcdir" != "$dstdir"; then 
+
+  cd $dstdir
+
+  if test "$overwrite" = "yes"; then
+
+    rm -rf *
+    cp -r ${srcdir}/* .
+
+  else
+
+    for file in ${srcdir}/*; do
+      if test ! -r $file; then
+        cp -r $srcdir/$file .
+      fi
+    done
+
+  fi
+
+fi

@@ -1,0 +1,102 @@
+                SystemC Verification Library (Rel. 1.0p2-sysc2.2)
+                =================================================
+
+-------------------------------------------------------------------------------
+                                IMPORTANT
+
+1. This is the production release of SCV 1.0. This release contains an 
+   implementation of the verfication extensions for SystemC 2.1 and SystemC 2.2
+   and is compliant with IEEE 1666(tm).
+   Examples are provided in the examples directory.
+
+2. This release is supported on the following platforms for which it has
+   been well tested:
+
+   o Sun Solaris 2.7 and 2.8 with GNU C++ compiler version gcc-2.95.2 
+   o Sun Solaris 2.7 and 2.8 with GNU C++ compiler version gcc-3.2
+   o Sun Solaris 2.7 and 2.8 with Forte 7 compiler version 5.4
+   o Linux Redhat 7.1 with GNU C++ compiler version gcc-2.96-85 or gcc-2.95.3
+   o Linux Redhat 7.2 with GNU C++ compiler version gcc-2.96-98 or gcc-2.95.3
+   o Linux Redhat 8.0 with GNU C++ compiler version gcc-3.2
+   o Linux Redhat EE 2.1 with GNU C++ compiler version gcc-3.2.3
+   o Linux (2.6.9-34.EL kernel) with GNU C++ compiler versions gcc-3.4.5
+     and gcc-4.1.0   
+   o HP-UX 11.00 with HP C++ compiler version A.03.39
+   o HP-UX 11.00 with GNU C++ compiler version gcc-3.2
+   o Windows NT 4.0 (SP6a) and Windows XP with Microsoft Visual C++ 7.1 
+
+-------------------------------------------------------------------------------
+
+Licensing and Copyright
+
+   See the separate LICENSE file to determine your rights
+   and responsiblities for using SystemC.
+
+User Documentation
+
+   You can find documentation for this release in the docs directory;
+   here is a brief description of each document:
+
+   scv/date03a2.pdf -- A tutorial introduction to SCV, presented at DATE
+   2003.
+
+   scv/intro_slides.pdf -- A set of slides introducing SCV.
+
+   scv/scv_random_white_paper4.pdf -- An introduction to SCV's facilities
+   for constrained randomization.
+
+   scv/scvref/vwg_1_0e.pdf -- The latest version of the SCV specification.
+
+Installation
+
+   See the separate INSTALL file that provides system
+   information and installation instructions.
+
+Release Notes
+
+   See the separate RELEASENOTES file that provides up-to-date
+   information about this release of SCV.
+
+Examples
+
+   You can find SCV examples in the examples directory; the examples
+   README (examples/README in the distribution, examples/scv/README
+   in an installation) contains a brief description of each of the 
+   examples.
+
+Additional information
+
+   SystemC has a web site at
+
+       http://www.systemc.org
+     
+   The following slide show with audio introduces the SCV
+   library and provides an overview of its capabilities:
+
+      http://www.systemc.org/projects/sitedocs/document/VWG1/
+
+   Several of the examples are from the SCV engineering notebook.  To
+   view the notebook itself, which contains additional explanatory text, 
+   use this link:
+
+      http://www.testbuilder.net/tbsc_notebook/cve_tut/scv_eng_nb/index.thtml
+
+   Discussion forum: http://www.systemc.org/login_forum.html
+
+   You can post bugs and suggestions of general interest to the forum.
+   When reporting bugs please specify the following information (if
+   applicable):
+
+      1) SystemC version 
+      2) platform, compiler, flags 
+      3) description of the problem 
+      4) steps to reproduce the problem 
+      5) compile/runtime warnings and errors 
+      6) code sample, not more than 100 lines to demonstrate the problem 
+
+   Note: All bugs will only be tested against the latest publicly available 
+   version of the product. 
+   Note: All C++ compilers that SystemC supports have bugs of different
+   degree of severity. We cannot fix those bugs. Please report them to
+   the compiler vendor.
+

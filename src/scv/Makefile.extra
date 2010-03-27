@@ -1,0 +1,20 @@
+##
+## Need this list of files here for use in scv/Makefile.am and 
+## simulators/Makefile.am.  Using $(top_builddir)/scv/*.o is 
+## problematic, i.e. somewhat unreliable with different versions
+## of GNU make.
+##
+
+libscv_cxx_files = \
+	scv_constraint.cpp \
+	scv_constraint_range.cpp \
+	scv_debug.cpp \
+	scv_expression.cpp \
+	scv_init_seed.cpp \
+	scv_introspection.cpp \
+	scv_random.cpp \
+	scv_report.cpp \
+	scv_tr.cpp \
+	scv_tr_text.cpp \
+	scv_util.cpp
+

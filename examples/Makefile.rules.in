@@ -1,0 +1,81 @@
+## ****************************************************************************
+##
+##  The following code is derived, directly or indirectly, from the SystemC
+##  source code Copyright (c) 1996-2002 by all Contributors.
+##  All Rights reserved.
+##
+##  The contents of this file are subject to the restrictions and limitations
+##  set forth in the SystemC Open Source License Version 2.3 (the "License");
+##  You may not use this file except in compliance with such restrictions and
+##  limitations. You may obtain instructions on how to receive a copy of the
+##  License at http://www.systemc.org/. Software distributed by Contributors
+##  under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
+##  ANY KIND, either express or implied. See the License for the specific
+##  language governing rights and limitations under the License.
+##
+## ****************************************************************************
+
+# These Makefile rules require the definition of the following environment 
+# variables (set by configure):
+#
+#   includedir       The include directory for SCV
+#   libdir           The library directory for SCV
+#   SYSC_INC_PREFIX  The include directory for SystemC
+#   SYSC_LIB_PREFIX  The library directory for SystemC
+#
+# They also require definition of these Makefile variables (set in the 
+# Makefile that uses the rules):
+#
+#   SOURCE_FILES The C++ source files (.cc or .cpp) for the example
+#   INCLUDE_FILES The C++ headers files (.h) for the example
+#
+# They provide targets for three architectures:
+#
+#   sun-gnu
+#   linux
+#   hppa-native
+
+SHELL = /bin/sh
+AUTOMAKE_OPTIONS = foreign
+EXTRA_DIST = ${SOURCE_FILES} ${INCLUDE_FILES} README
+
+OBJECT_FILES = ${addsuffix .o, ${basename ${SOURCE_FILES}}}
+
+CLEANFILES = ${OBJECT_FILES} libscvtestbench.so run.x
+
+DISTCLEANFILES = ${CLEANFILES}
+
+sun-gnu:
+	LD_LIBRARY_PATH=.:${SYSC_LIB_PREFIX}:${libdir}:${LD_LIBRARY_PATH}; \
+	export LD_LIBRARY_PATH; \
+	g++ -I${SYSC_INC_PREFIX} -I${includedir} -fPIC -c -g -Wall -O2 ${SOURCE_FILES}; \
+	g++ ${OBJECT_FILES} -L${SYSC_LIB_PREFIX} -lsystemc -L${libdir} -lscv -L${SYSC_LIB_PREFIX} -lsystemc -o run.x; \
+	./run.x
+
+sun-native:
+	LD_LIBRARY_PATH=.:${SYSC_LIB_PREFIX}:${libdir}:${LD_LIBRARY_PATH}; \
+	export LD_LIBRARY_PATH; \
+	CC -I${SYSC_INC_PREFIX} -I${includedir} -KPIC -c -g  -xO2 ${SOURCE_FILES}; \
+	CC ${OBJECT_FILES} -L${SYSC_LIB_PREFIX} -lsystemc -L${libdir} -lscv -L/usr/dt/lib -L/usr/lib -lCrun -L${SYSC_LIB_PREFIX} -lsystemc -o run.x; \
+	./run.x
+
+linux:
+	LD_LIBRARY_PATH=.:${SYSC_LIB_PREFIX}:${libdir}:${LD_LIBRARY_PATH}; \
+	export LD_LIBRARY_PATH; \
+	g++ -I${SYSC_INC_PREFIX} -I${includedir} -fPIC -c -g -Wall -O2 ${SOURCE_FILES}; \
+	g++ ${OBJECT_FILES} -L${SYSC_LIB_PREFIX} -lsystemc -L${libdir} -lscv -L${SYSC_LIB_PREFIX} -lsystemc -o run.x; \
+	./run.x
+
+hppa-gnu:
+	LD_LIBRARY_PATH=.:${SYSC_LIB_PREFIX}:${libdir}:${LD_LIBRARY_PATH}; \
+	export LD_LIBRARY_PATH; \
+	g++ -I${SYSC_INC_PREFIX} -I${includedir} -fPIC -c -g -Wall -O2 ${SOURCE_FILES}; \
+	g++ ${OBJECT_FILES} -L${SYSC_LIB_PREFIX} -lsystemc -L${libdir} -lscv -L${SYSC_LIB_PREFIX} -lsystemc -o run.x; \
+	./run.x
+
+hppa-native:
+	LD_LIBRARY_PATH=.:${SYSC_LIB_PREFIX}:${libdir}:${LD_LIBRARY_PATH}; \
+	export LD_LIBRARY_PATH; \
+	aCC -I${SYSC_INC_PREFIX} -I${includedir} +Z -c -g -ext -Aa ${SOURCE_FILES}; \
+	aCC ${OBJECT_FILES} -L${SYSC_LIB_PREFIX} -lsystemc -L${libdir} -lscv -Wl,+s -L/opt/aCC/lib -lstd -lstream -lCsup -L${SYSC_LIB_PREFIX} -lsystemc -o run.x; \
+	./run.x

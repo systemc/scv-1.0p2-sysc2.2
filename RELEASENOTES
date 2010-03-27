@@ -1,0 +1,121 @@
+                Release Notes for SCV 1.0p2-sysc2.2
+                ===================================
+
+CONTENTS
+========
+
+  1) What's new in this release?
+
+  2) Bug fixes and enhancements
+
+  3) Other changes
+
+  4) Known limitations
+
+  5) Beta features
+
+  6) Deprecated features
+
+
+1) What's new in this release?
+==============================
+
+This is an update of the SCV 1.0p1 release of the SystemC verification
+library. The primary purpose of this update is to support the SystemC 2.1v1
+and SystemC 2.2 versions that have been developed since the original release.
+
+It also includes support for versions of gcc that require greater complience
+with the ANSI C++ standard. The latest version of gcc that has been tested
+with this release is gcc 4.1.0.
+
+
+
+2) Bug fixes and enhancements
+=============================
+
+
+3) Other changes
+================
+
+
+4) Known limitations
+====================
+
+o There are still differences between the SCV installation process and
+  the one for the SystemC core library.  See the file INSTALL for
+  details.
+
+o Introspection is not supported for fixed point data types
+  (scv_fixed<>, etc). This means that randomization can not be
+  done for these types.
+
+o Constrained randomization cannot be done with floating point types.
+  However, simple constraints can be done with floating point types,
+  so it is possible to get similar effects by overloading the next()
+  method in a constraint which includes floating point types.
+
+  For example:
+    struct constraint : public scv_constraint_base {
+      scv_smart_ptr<double> d;
+      scv_smart_ptr<int> i;
+      SCV_CONSTRAINT_CTOR(constraint) {
+        SCV_CONSTRAINT( d() < 0.01 && i() < 10 );
+      }
+    };
+
+  must be written as:
+    struct constraint : public scv_constraint_base {
+      scv_smart_ptr<double> d;
+      scv_smart_ptr<int> i;
+      SCV_CONSTRAINT_CTOR(constraint) {
+        d->keep_only(-FLT_MAX/2, 0.01);
+        SCV_CONSTRAINT( i() < 10 );
+      }
+    };
+
+o Complex constraints which use arithmethic operators may take
+  a long time to solve. Constraints involving multiplication operations
+  should be limited to 8 bit by 8 bit numbers. Larger than this will
+  cause simulations to effectively hang. For example, the following
+  constraint will never finish due to the two 32 bit by 32 bit
+  multiplications:
+
+    struct constraint : public scv_constraint_base {
+      scv_smart_ptr<int> a, b, c;
+      SCV_CONSTRAINT_CTOR(constraint) {
+        SCV_CONSTRAINT( (a() * b()) < (b() * c()) );
+      }
+    };
+
+o We do not support smart pointers to arrays.  You can work around
+  this limitation by wrapping a struct around the array.
+
+o We do not implement scv_connect().  This function creates a 
+  connection between a SystemC and an HDL signal.  It is intended
+  that vendor implementations of SystemC will include an scv_connect()
+  that supports connections with specific HDL simulators.
+
+o We have not run our full regression suite using VC++, and are not
+  prepared to claim full support under Windows.  
+
+5) Beta features
+================
+
+The SCV library consists of the following set of features:
+
+o Simple constrainted randomization
+o Complex constrained randomization (multi-variable constraints)
+o Random distributions and distribution ranges
+o Composite and enumerated datatype introspection
+o Transaction recording
+o Verification datastructure
+o Messaging
+
+6) Deprecated features
+======================
+
+The SCV_REPORT_INFO, SCV_REPORT_WARNING, SCV_REPORT_ERROR and SCV_REPORT_FATAL
+macros are now typedefs for the corresponding SC_REPORT_* macros. New applications
+should use SC_REPORT_* (as specified in the IEEE 1666(tm) standard) rather than
+SCV_REPORT_*.
+
