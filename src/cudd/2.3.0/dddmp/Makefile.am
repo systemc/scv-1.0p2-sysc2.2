@@ -37,11 +37,11 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libdddmp.a 
+noinst_LTLIBRARIES = libdddmp.la 
 
 SUBDIRS = doc
 
-libdddmp_a_SOURCES = \
+libdddmp_la_SOURCES = \
 		dddmp.h dddmpInt.h \
 		dddmpDump.c dddmpBinary.c dddmpConvert.c dddmpDbg.c \
 		dddmpDdNode.c 
@@ -64,7 +64,7 @@ EXTRA_DIST = \
 	varauxids.ord \
 	varnames.ord \
 	zero.bdd 
-		
+
 INCLUDES = \
 	-I${top_srcdir}/src/cudd/2.3.0/cudd \
 	-I${top_srcdir}/src/cudd/2.3.0/util \
@@ -72,8 +72,3 @@ INCLUDES = \
 	-I${top_srcdir}/src \
 	-I${buildInc} \
 	-DSCV_VERSION=\"$(VERSION)\"
-
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-all : all-recursive
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES}

@@ -24,6 +24,8 @@ AUTOMAKE_OPTIONS = foreign
 
 copyExamples = ${top_srcdir}/scripts/copyExamples.sh
 
+EXAMPLE_DIR = $(DESTDIR)/${prefix}/share/scv/doc/examples
+
 all : all-am
 	echo SYSC_INC_PREFIX = ${SYSC_INC_PREFIX} >Makefile.rules; \
 	echo SYSC_LIB_PREFIX = ${SYSC_LIB_PREFIX} >>Makefile.rules; \
@@ -45,17 +47,17 @@ clean : clean-am clean-worker
 distclean : distclean-am clean-worker
 
 install :
-	mkdir -p ${prefix}/examples/scv
-	rules=${prefix}/examples/scv/Makefile.rules; \
+	mkdir -p $(EXAMPLE_DIR)
+	rules=$(EXAMPLE_DIR)/Makefile.rules; \
 	echo SYSC_INC_PREFIX = ${SYSC_INC_PREFIX} >$$rules; \
 	echo SYSC_LIB_PREFIX = ${SYSC_LIB_PREFIX} >>$$rules; \
 	echo includedir = ${includedir} >>$$rules; \
 	echo libdir = ${libdir} >>$$rules; \
 	cat ${srcdir}/Makefile.rules.in >>$$rules
 	if test -n "${extraExamples}" -a -d "${extraExamples}"; then \
-	  cp -rf ${extraExamples}/* ${prefix}/examples/scv; \
+	  cp -rf ${extraExamples}/* $(EXAMPLE_DIR); \
 	fi
-	${copyExamples} ${srcdir} ${prefix}/examples/scv
+	${copyExamples} ${srcdir} $(EXAMPLE_DIR)
 
 dist-hook :
 	if test -n "${extraExamples}" -a -d "${extraExamples}"; then \

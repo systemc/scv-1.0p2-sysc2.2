@@ -37,20 +37,15 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libutil.a 
+noinst_LTLIBRARIES = libutil.la 
 
-libutil_a_SOURCES = \
+libutil_la_SOURCES = \
 		util-std.h util.h \
 		cpu_time.c cpu_stats.c getopt.c safe_mem.c strsav.c texpand.c \
 		ptime.c prtime.c pipefork.c pathsearch.c stub.c \
-  		restart.c tmpfile.c datalimit.c
+		restart.c tmpfile.c datalimit.c
 
 INCLUDES = \
 	-I${top_srcdir}/src \
 	-I${buildInc} \
 	-DSCV_VERSION=\"$(VERSION)\"
-
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-all : all-am
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES}

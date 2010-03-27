@@ -37,11 +37,11 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libobj.a 
+noinst_LTLIBRARIES = libobj.la 
 
 EXTRA_DIST = testobj.cc
 
-libobj_a_SOURCES = cuddObj.hh cuddObj.cc 
+libobj_la_SOURCES = cuddObj.hh cuddObj.cc 
 
 INCLUDES = \
 	-I${top_srcdir}/src/cudd/2.3.0/util \
@@ -50,8 +50,3 @@ INCLUDES = \
 	-I${top_srcdir}/src \
 	-I${buildInc} \
 	-DSCV_VERSION=\"$(VERSION)\"
-
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-all : all-am
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES}
