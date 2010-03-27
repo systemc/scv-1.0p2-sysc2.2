@@ -39,20 +39,5 @@ SHELL = /bin/sh
 
 AUTOMAKE_OPTIONS = foreign
 
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-@dummy_install@ :
-	@echo "Build directory and install directory are the same."
-	@echo "No install is necessary."
-
-@actual_install@ :
-	${copyFiles} ${srcdir} ${prefix}/docs/scv/scvref vwg_1_0e.pdf
-
-dist-hook :
-	mkdir -p ${distdir}
-	-if test -f ${pdfDocSrcDir}/vwg_1_0e.pdf; then \
-	  cp ${pdfDocSrcDir}/vwg_1_0e.pdf ${distdir}; \
-	fi
-	-if test -f ${srcdir}/vwg_1_0e.pdf; then \
-	  cp ${srcdir}/vwg_1_0e.pdf ${distdir}; \
-	fi
+pdfdir = $(prefix)/share/scv/doc
+pdf_DATA = vwg_1_0e.pdf

@@ -37,19 +37,14 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libst.a 
+noinst_LTLIBRARIES = libst.la 
 
 SUBDIRS = doc
 
-libst_a_SOURCES =  st.h st.c
+libst_la_SOURCES =  st.h st.c
 
 INCLUDES = \
 	-I${top_srcdir}/src/cudd/2.3.0/util \
 	-I${top_srcdir}/src \
 	-I${buildInc} \
 	-DSCV_VERSION=\"$(VERSION)\"
-
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-all : all-recursive
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES}

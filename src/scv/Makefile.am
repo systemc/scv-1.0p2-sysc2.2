@@ -37,21 +37,19 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libscv.a
+lib_LTLIBRARIES = libscv.la
 
+library_includedir = $(prefix)/include/scv
 ##
 ## Get definition of libscv_cxx_files.  This list can't be defined in configure because the _SOURCES
 ## variable gets processed by automake before configure runs.
 ##
 include $(top_srcdir)/src/scv/Makefile.extra
 
-libscv_a_SOURCES = ${libscv_cxx_files}
-EXTRA_DIST = Makefile.extra $(my_includes) 
+libscv_la_SOURCES = ${libscv_cxx_files}
+EXTRA_DIST = Makefile.extra
 
-my_includes = ${my_scv_includes}
-# my_includes = ${my_scv_includes}
-
-my_scv_includes = \
+library_include_HEADERS = \
 _scv_associative_array.h \
 _scv_ext_callbacks.h \
 _scv_data_structure.h \
@@ -91,40 +89,15 @@ INCLUDES = \
 	-I${SYSC_INC_PREFIX} \
 	-DSCV_VERSION=\"$(VERSION)\"
 
-BDD_LIBS = \
-	${buildLib}/libobj.a \
-	${buildLib}/libcudd.a \
-	${buildLib}/libutil.a \
-	${buildLib}/libmtr.a \
-	${buildLib}/libst.a
+libscv_la_LIBADD= \
+	../cudd/2.3.0/obj/libobj.la \
+	../cudd/2.3.0/cudd/libcudd.la \
+	../cudd/2.3.0/util/libutil.la \
+	../cudd/2.3.0/mtr/libmtr.la \
+	../cudd/2.3.0/st/libst.la
 
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-OBJFILES = ${addsuffix .o, ${basename ${libscv_a_SOURCES}}}
 
 SYSC_LIBRARY = ${SYSC_LIB_PREFIX}/libsystemc.a
 
-libscv${SHLIB_EXT} : ${OBJFILES} ${BDD_LIBS}
-	${CXX} ${scvLinkerOpts} -o libscv${SHLIB_EXT} \
-	  $(OBJFILES) ${BDD_LIBS} ${LIBS}
+libscv_la_LDFLAGS = -version-info 0:0:0
 
-all : all-am libscv${SHLIB_EXT}
-	${copyFiles} -s ${srcdir} ${buildInc}/scv ${my_includes}
-	${copyFiles} -s ${srcdir} . ${my_includes}
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES} libscv${SHLIB_EXT}
-
-clean-worker :
-	-rm -rf libscv${SHLIB_EXT}
-	SRC=`cd ${srcdir};pwd`; BLD=`pwd`; \
-	if test "$$SRC" != "$$BLD"; then rm -rf ${my_includes}; fi
-
-clean : clean-am clean-worker
-
-distclean : distclean-am clean-worker
-
-install : libscv${SHLIB_EXT}
-	${copyFiles} . ${includedir}/scv ${my_includes}
-	${copyFiles} . ${libdir} libscv${SHLIB_EXT}
-
-uninstall : uninstall-am
-	-rm -rf ${libdir}/libscv${SHLIB_EXT}

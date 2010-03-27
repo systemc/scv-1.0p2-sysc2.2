@@ -37,12 +37,12 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libcudd.a 
+noinst_LTLIBRARIES = libcudd.la
 
 SUBDIRS = doc
 EXTRA_DIST = r7x8.1.mat r7x8.1.out testcudd.c
 
-libcudd_a_SOURCES = cudd.h cuddInt.h \
+libcudd_la_SOURCES = cudd.h cuddInt.h \
 		cuddAPI.c cuddAddAbs.c cuddAddApply.c cuddAddFind.c \
 		cuddAddIte.c  cuddAddInv.c cuddAddNeg.c cuddAddWalsh.c \
 		cuddAndAbs.c cuddAnneal.c cuddApa.c cuddApprox.c cuddBddAbs.c \
@@ -66,9 +66,3 @@ INCLUDES = \
 	-I${top_srcdir}/src \
 	-I${buildInc} \
 	-DSCV_VERSION=\"$(VERSION)\"
-
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-all : all-recursive
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES}
-
