@@ -866,6 +866,7 @@ dnl
 dnl determine which simulators to build for
 dnl
 
+AC_ARG_WITH(systemc, [  --with-systemc          Path to the local SystemC installation])
 case "${with_systemc:-}" in
   "no")  systemc_enab="no";    systemc_path="";;
   "yes") systemc_enab="yes";   systemc_path="";;
