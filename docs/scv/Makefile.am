@@ -41,5 +41,5 @@ SUBDIRS = scvref
 
 AUTOMAKE_OPTIONS = foreign
 
-pdfdir = $(prefix)/share/doc/scv22-doc
+pdfdir = $(prefix)/share/doc/scv22
 pdf_DATA = date03a2.pdf intro_slides.pdf scv_random_white_paper4.pdf
