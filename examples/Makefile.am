@@ -24,7 +24,7 @@ AUTOMAKE_OPTIONS = foreign
 
 copyExamples = ${top_srcdir}/scripts/copyExamples.sh
 
-EXAMPLE_DIR = $(DESTDIR)/${prefix}/share/scv/doc/examples
+EXAMPLE_DIR = $(DESTDIR)/${prefix}/share/doc/scv22/examples
 
 all : all-am
 	echo SYSC_INC_PREFIX = ${SYSC_INC_PREFIX} >Makefile.rules; \
