@@ -1,0 +1,8 @@
+Debian Release of SCV 2.2 libraries and documentation
+-------------------------------------------------------------
+
+SCV 2.2 libraries are distributed into three separate packages:
+
+- libscv22-dev	provides the development libraries and headers
+- libscv22		provides the runtime libraries (shared libraries)
+- scv22-doc		provides the documentation manuals (pdf)

@@ -1,0 +1,12 @@
+diff --git scripts/copyExamples.sh scripts/copyExamples.sh
+old mode 100644
+new mode 100755
+index 90ccb2e..a79c7b8
+--- scripts/copyExamples.sh
++++ scripts/copyExamples.sh
+@@ -1,4 +1,4 @@
+-#!/bin/sh -h
++#!/bin/bash -h
+ 
+ # copyExamples.sh <srcdir> <dstdir>
+ 

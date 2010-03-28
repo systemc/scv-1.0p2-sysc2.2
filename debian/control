@@ -1,0 +1,31 @@
+Source: scv22
+Section: non-free/libs
+Priority: optional
+Maintainer: Puneet Goel <puneet@systemc.in>
+Build-Depends: cdbs (>= 0.4.27-1), debhelper (>= 4.2.0), automake
+Standards-Version: 3.7.2
+
+Package: libscv22-dev
+Architecture: any
+Section: non-free/libdevel
+Depends: libscv22
+Description: SystemC Verification Library (SCV), Release 1.0p2 lets
+ users construct high-level testbenches using SystemC. It also provides
+ the ability to test RTL implementation against golden reference models
+ written in SystemC, and specifies interfaces to HDL simulators.
+
+Package: libscv22
+Architecture: any
+Section: non-free/libs
+Description: SystemC Verification Library (SCV), Release 1.0p2 lets
+ users construct high-level testbenches using SystemC. It also provides
+ the ability to test RTL implementation against golden reference models
+ written in SystemC, and specifies interfaces to HDL simulators.
+
+Package: scv22-doc
+Architecture: all
+Section: non-free/doc
+Description: SystemC Verification Library (SCV), Release 1.0p2 lets
+ users construct high-level testbenches using SystemC. It also provides
+ the ability to test RTL implementation against golden reference models
+ written in SystemC, and specifies interfaces to HDL simulators.
