@@ -47,7 +47,7 @@ AUTOMAKE_OPTIONS = foreign
 
 TEXTDOCS = LICENSE README AUTHORS COPYING INSTALL NEWS RELEASENOTES
 
-pdfdir = $(prefix)/share/scv/doc
+pdfdir = $(prefix)/share/doc/scv22-doc
 pdf_DATA = ${TEXTDOCS} kitnumber.txt majorrev.txt minorrev.txt \
         kittype.txt relnumber.txt osci_issues_for_scv.txt
 

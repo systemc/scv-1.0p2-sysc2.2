@@ -39,5 +39,5 @@ SHELL = /bin/sh
 
 AUTOMAKE_OPTIONS = foreign
 
-pdfdir = $(prefix)/share/scv/doc
+pdfdir = $(prefix)/share/doc/scv22-doc
 pdf_DATA = vwg_1_0e.pdf
