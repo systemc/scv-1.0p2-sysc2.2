@@ -15934,10 +15934,12 @@ actual_install="install"
 if test "$prefix" != "NONE"; then
   mkdir -p $prefix
   prefix=`cd $prefix; pwd`
-  libdir=$prefix/lib-$SYSC_TARGET
+  # libdir=$prefix/lib-$SYSC_TARGET
+  libdir=$prefix/lib
 elif test "$systemc_enab" = "no"; then
   prefix=`pwd`
-  libdir=$prefix/lib-$SYSC_TARGET
+  # libdir=$prefix/lib-$SYSC_TARGET
+  libdir=$prefix/lib
 else
   prefix=`cd $systemc_path; pwd`
   libdir=$SYSC_LIB_PREFIX
