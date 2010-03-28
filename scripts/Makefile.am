@@ -67,7 +67,4 @@ distclean : distclean-am clean-worker
 	@echo "Build directory and install directory are the same."
 	@echo "No install is necessary."
 
-@actual_install@ : 
-	mkdir -p ${includedir} ${libdir}
-
 dist-hook : create_copiers
