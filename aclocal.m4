@@ -78,9 +78,7 @@ namespace std {}
 using namespace std;
 #include <string>
 #include <stdio.h>
-// #include <strstream.h>
-#include <sstream>
-
+#include <strstream.h>
 int main()
 {
 #define STRING_SIZE 100
@@ -92,8 +90,7 @@ int main()
     exit(1);
   }
 
-  // ostrstream outString(buf, STRING_SIZE);
-  std::ostringstream outString;
+  ostrstream outString(buf, STRING_SIZE);
   outString << "hello world " << i;
   if (strcmp(buf,"hello world 1") != 0)
   {
