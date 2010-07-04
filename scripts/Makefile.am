@@ -43,19 +43,15 @@ EXTRA_DIST = \
 all : all-am create_copiers
 
 create_copiers :
-	# create copyDir.sh
-	echo "#!/bin/sh -h" >copyDir.sh
+	echo "#!/bin/bash -h" >copyDir.sh
 	echo "overwrite=${overwrite_files}" >>copyDir.sh
 	cat ${srcdir}/copyDir.sh.in >>copyDir.sh
-	# create copyExamples.sh
 	if test ! -r copyExamples.sh; then \
 	  cp ${srcdir}/copyExamples.sh .; \
 	fi
-	# create copyFiles.sh
-	echo "#!/bin/sh -h" >copyFiles.sh
+	echo "#!/bin/bash -h" >copyFiles.sh
 	echo "overwrite=${overwrite_files}" >>copyFiles.sh
 	cat ${srcdir}/copyFiles.sh.in >>copyFiles.sh
-	# set permissions
 	chmod a+x copyDir.sh copyFiles.sh
 
 clean-worker :
@@ -70,8 +66,5 @@ distclean : distclean-am clean-worker
 @dummy_install@ :
 	@echo "Build directory and install directory are the same."
 	@echo "No install is necessary."
-
-@actual_install@ : 
-	mkdir -p ${includedir} ${libdir}
 
 dist-hook : create_copiers

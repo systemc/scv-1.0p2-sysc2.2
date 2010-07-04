@@ -45,12 +45,14 @@ SUBDIRS = \
 
 AUTOMAKE_OPTIONS = foreign
 
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
 TEXTDOCS = LICENSE README AUTHORS COPYING INSTALL NEWS RELEASENOTES
 
-EXTRA_DIST = ${TEXTDOCS} kitnumber.txt majorrev.txt minorrev.txt \
+pdfdir = $(prefix)/share/doc/scv22
+pdf_DATA = ${TEXTDOCS} kitnumber.txt majorrev.txt minorrev.txt \
         kittype.txt relnumber.txt osci_issues_for_scv.txt
+
+include_HEADERS = scv_config.h
+includedir = $(prefix)/include/scv
 
 scv_config.h : config.h
 	cp config.h scv_config.h
@@ -67,22 +69,3 @@ opt:
 all : scv_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
-clean : clean-recursive
-	-rm -rf ${buildBin} ${buildInc} ${buildLib} scv_config.h
-
-distclean : distclean-recursive
-	-rm -rf ${buildBin} ${buildInc} ${buildLib} scv_config.h config.status
-
-@actual_install@ : scv_config.h
-	${copyFiles} . ${includedir}/scv scv_config.h
-	for f in ${TEXTDOCS}; do cp ${srcdir}/$$f ${prefix}/$$f.scv; done
-	for f in ${TEXTDOCS}; do chmod u+w ${prefix}/$$f.scv; done
-
-uninstall : uninstall-recursive
-	for f in ${TEXTDOCS}; do rm -f ${prefix}/$$f.scv; done
-	-rm -rf ${prefix}/docs/scv ${prefix}/examples/scv ${prefix}/include/scv
-
-dist-hook :
-	mkdir -p ${distdir}
-	rm -rf ${distdir}/msvc71
-	cp -r ${srcdir}/msvc71 ${distdir}

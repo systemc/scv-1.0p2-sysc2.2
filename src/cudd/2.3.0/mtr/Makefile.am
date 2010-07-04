@@ -37,7 +37,7 @@
 
 SHELL = /bin/sh
 AUTOMAKE_OPTIONS = foreign
-lib_LIBRARIES = libmtr.a 
+noinst_LTLIBRARIES = libmtr.la 
 
 SUBDIRS = doc
 
@@ -46,7 +46,7 @@ EXTRA_DIST = \
 	test.groups \
 	testmtr.c
 
-libmtr_a_SOURCES = \
+libmtr_la_SOURCES = \
 	mtr.h     mtrInt.h \
 	mtrBasic.c mtrGroup.c 
 
@@ -56,8 +56,3 @@ INCLUDES = \
 	-I${top_srcdir}/src \
 	-I${buildInc} \
 	-DSCV_VERSION=\"$(VERSION)\"
-
-copyFiles = ${top_builddir}/scripts/copyFiles.sh
-
-all : all-recursive
-	${copyFiles} -s . ${buildLib} ${lib_LIBRARIES}
