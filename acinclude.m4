@@ -8,7 +8,7 @@ AC_DEFUN(SC_VERSION_CHECK,
     [
     cat > testsc.sh <<EOF
     #! /bin/sh
-    $CXX scver.cc $1 -I[$2] -L[$3] -lsystemc -o scver 2>&5 || exit 1
+    $CXX scver.cc $1 -I[$2] -L[$3] -static -lsystemc -o scver 2>&5 || exit 1
     exit 0
 EOF
     chmod +x testsc.sh
@@ -63,9 +63,12 @@ EOF
 /* So define it here empty.  Namespaces are extensible, so this is harmless. */
 namespace std {}
 using namespace std;
-#include <string>
+#include <string.h>
 #include <stdio.h>
-#include <strstream.h>
+#include <stdlib.h>
+// #include <strstream.h>
+#include <sstream>
+
 int main()
 {
 #define STRING_SIZE 100
@@ -77,7 +80,8 @@ int main()
     exit(1);
   }
 
-  ostrstream outString(buf, STRING_SIZE);
+  // ostrstream outString(buf, STRING_SIZE);
+  std::ostringstream outString;
   outString << "hello world " << i;
   if (strcmp(buf,"hello world 1") != 0)
   {
@@ -174,11 +178,11 @@ EOF
 namespace std {}
 using namespace std;
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 int main()
 {
   unsigned long long hold = 10;
-  cout << hold << endl;
+  std::cout << hold << std::endl;
   exit(0);
 }]
 EOF
@@ -213,7 +217,7 @@ struct testT { const char* name; int i; int j; };
 testT test[[]] = {{"test0",5,2},{"test1",3,3},{0}};
 EOF
     cat > t2conftest.cc <<EOF
-[#include <iostream.h>
+[#include <iostream>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
